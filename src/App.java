@@ -3,12 +3,12 @@ import java.util.Scanner;
 public class App {
     
     public static void menu() {
-        System.out.println("(a) Adicionar contato");
-        System.out.println("(b) Remover contato");
-        System.out.println("(c) Buscar contato por nome");
-        System.out.println("(d) Buscar contato por email");
-        System.out.println("(e) Buscar contato por telefone");
-        System.out.println("(f) Consultar tamanho da Agenda");
+        System.out.println("(a) Cadastrar ingresso");
+        System.out.println("(b) Remover ingresso");
+        System.out.println("(c) Buscar ingresso por código");
+        System.out.println("(d) Listar todos os ingressos");
+        System.out.println("(e) Calcular arrecadação total");
+        System.out.println("(f) Listar benefícios dos ingressos");
         System.out.println("(g) Finalizar");
     }
     
@@ -17,7 +17,7 @@ public class App {
         Scanner input = new Scanner(System.in);
         String op = "";
 
-        Agenda agenda = new Agenda();
+        Bilheteria bilheteria = new Bilheteria();
 
         do {
             menu();
@@ -25,104 +25,110 @@ public class App {
             
             switch (op) {
                 case "a":
+                    
+                    System.out.print("Codigo: ");
+                    int codigo = input.nextInt();
+                    input.nextLine(); 
+                    System.out.println("Nome Evento: ");
+                    String nomeEvento = input.nextLine();
 
-                    System.out.print("Nome: ");
-                    String nome = input.nextLine();
-                    System.out.print("Email: ");
-                    String email = input.nextLine();
-                    System.out.print("Telefone: ");
-                    String telefone = input.nextLine();
+                    System.out.println("Setor: ");
+                    String setor = input.nextLine();
+
+                    System.out.println("Valor Base: ");
+                    Double valorBase = input.nextDouble();
+                    input.nextLine();
+
+                    System.out.println("Nome " + nomeEvento);
                     
                     System.out.println("Qual tipo de contato você deseja criar? ");
-                    System.out.println("a - Pessoal");
-                    System.out.println("b - Profissional");
-                    System.out.println("c - Emergência");
+                    System.out.println("a - Comum");
+                    System.out.println("b - Estudante");
+                    System.out.println("c - VIP");
+                    
+                    
                     String tipo = input.nextLine(); 
                     
                     switch (tipo) {
-                        case "a":
-                            System.out.print("Dt. Niver: ");
-                            String dta = input.nextLine();
-                            System.out.print("Parentesco: ");
-                            String parentesco = input.nextLine();
+                        case "a":                           
+                        System.out.println(nomeEvento);    
+                        IngressoComum ic = new IngressoComum(codigo, nomeEvento, setor, valorBase);
+                        bilheteria.adicionarIngresso(ic);
+                        break;
+                        
+                        case "b":
+                            System.out.print("Instituição Ensino: ");
+                            String instituicaoEnsino = input.nextLine();
                             
-                            ContatoPessoal cp = new ContatoPessoal(nome, email, telefone, dta, parentesco);
-
-                            agenda.adicionaContato(cp);
-
+                            IngressoEstudante ie = new IngressoEstudante(codigo, nomeEvento, setor, valorBase, instituicaoEnsino);
+                            
+                            bilheteria.adicionarIngresso(ie);
                             
                             break;
-                        case "b":
-                            System.out.print("Empresa: ");
-                            String empresa = input.nextLine();
-                            System.out.print("Cargo: ");
-                            String cargo = input.nextLine();
-                            
-                            ContatoProfissional cpr = new ContatoProfissional(nome, email, telefone, empresa, cargo);
+                            case "c":
+                                boolean acessoBackstage = false;
+                                
+                                System.out.print("Acesso ao Backstage: ");
+                                System.out.print("(a) - Sim");
+                                System.out.print("(b) - Não");
+                                String opcaoBack = input.nextLine();
+                                
+                                if (opcaoBack.equals("a")) {
+                                    acessoBackstage = true;
+                                }
+                                else if (!opcaoBack.equals("b")){
+                                    System.out.println("Opção Inválida! Acesso ao Backstage colocado como falso");
+                                }
 
-                            agenda.adicionaContato(cpr);
+                                System.out.print("Número Lounge: ");
+                            int numeroLounge = input.nextInt();
+                            
+                            IngressoVIP iv = new IngressoVIP(codigo, nomeEvento, setor, valorBase, acessoBackstage, numeroLounge);
+                            
+                            bilheteria.adicionarIngresso(iv);
+                            
+                        }    
+                        
+                        break;
+                        case "b":
+                            System.out.println("Código: ");
+                            int cod = input.nextInt();
+                            
+                            bilheteria.removeIngresso(cod);
                             
                             break;
                         case "c":
-                            System.out.print("Grau de Prioridade: ");
-                            int grau = input.nextInt();
-                            System.out.print("Observações: ");
-                            String obs = input.nextLine();
+                            System.out.println("Código: ");
+                            int codi = input.nextInt();
                             
-                            ContatoEmergencia ce = new ContatoEmergencia(nome, email, telefone, grau, obs);
-
-                            agenda.adicionaContato(ce);
+                            Ingresso i = bilheteria.buscaIngresso(codi);
+                            
+                            if (i == null){
+                                System.out.println("Ingresso não encontrado");
+                            } else {
+                                i.exibirDados();
+                            }
                             
                             break;
+                        case "d":
+                            bilheteria.listarIngressos();
                             
-                            default:
-                                System.out.print("Opção Inválida!");
                             break;
-                    }                  
-                    break;
-                case "b":
-                    System.out.println("Nome: ");
-                    String nm = input.nextLine();
-                    Contato contato = agenda.buscaPorNome(nm);
+                        case "e":
+                            double total = bilheteria.calcularArrecadacaoTotal();
+                            
+                            System.out.println("Total arrecadado: R$ " + total + "\n");
+                            
+                            break;
+                        case "f":
+                            bilheteria.listarBeneficios();
+                            break;
+                                
+                        default:
+                            break;    
+                        }
 
-                    if(contato != null){
-                        agenda.removeContato(contato);
-                    }
-                    else{
-                        System.out.print("Contato não encontrado");
-                    }
-
-
-                    break;
-                case "c":
-                    System.out.println("Nome: ");
-                    String n = input.nextLine();
-                    Contato contatoNomeAchado = agenda.buscaPorNome(n);
-
-                    contatoNomeAchado.exibirDados();
-                    break;
-                case "d":
-                    System.out.println("Email: ");
-                    String e = input.nextLine();
-                    Contato contatoEmailAchado = agenda.buscaPorEmail(e);
-                    
-                    contatoEmailAchado.exibirDados();
-                    break;
-                case "e":
-                    System.out.println("Telefone: ");
-                    String t = input.nextLine();
-                    Contato contatoTelefoneAchado = agenda.buscaPorTelefone(t);
-                    
-                    contatoTelefoneAchado.exibirDados();
-                    break;
-                        
-                case "f":
-                    System.out.println("Número de contatos: " + agenda.getQuantidadeContatos());
-                    break;
-            
-                default:
-                    break;
-            }
-        } while (!op.equals("g"));
+                    } while (!op.equals("g"));
+                                
     }
 }
